@@ -1,0 +1,35 @@
+services:
+
+  node-red:
+    container_name: setr-example-node-red
+    image: nodered/node-red:latest
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Madrid
+    ports:
+      - "31880:1880"
+    volumes:
+      - example-node-red-data:/data
+    networks:
+      - setr_example_net  
+      
+  MQTTbroker:
+    container_name: setr-example-mqtt
+    image: eclipse-mosquitto:1.6.13
+    ports:
+      - "31883:1883"
+    networks:
+      - setr_example_net  
+          
+  
+      
+volumes:
+  example-node-red-data:
+  
+
+networks:
+  setr_example_net:
+    driver: bridge  
+  
+
+

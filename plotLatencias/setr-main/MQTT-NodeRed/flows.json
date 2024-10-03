@@ -1,0 +1,420 @@
+[
+    {
+        "id": "ee73b953d39c3f96",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "6168ab534c15fdbb",
+        "type": "mqtt-broker",
+        "name": "setr-example-mqtt",
+        "broker": "setr-example-mqtt",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "39c3066c0f24db7b",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "85fda6526ebacf6a",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-dark",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#097479",
+                    "value": "#097479",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#097479",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#0eb8c0",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#555555",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#eeeeee",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#097479",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "849152b13751c786",
+        "type": "ui_group",
+        "name": "Sensor",
+        "tab": "39c3066c0f24db7b",
+        "order": 1,
+        "disp": true,
+        "width": "11",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2b69e89121cde807",
+        "type": "ui_group",
+        "name": "Potenciometro",
+        "tab": "39c3066c0f24db7b",
+        "order": 2,
+        "disp": true,
+        "width": "11",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "81794c975932f2fa",
+        "type": "mqtt in",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "topic": "SDC/sensor/",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "6168ab534c15fdbb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 230,
+        "y": 180,
+        "wires": [
+            [
+                "d57fa65405f1b2e3"
+            ]
+        ]
+    },
+    {
+        "id": "53c7222a37513cfe",
+        "type": "ui_gauge",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "group": "849152b13751c786",
+        "order": 0,
+        "width": "0",
+        "height": "0",
+        "gtype": "gage",
+        "title": "Temperature",
+        "label": "ºC",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "40",
+        "colors": [
+            "#1c71d8",
+            "#26a269",
+            "#ca3838"
+        ],
+        "seg1": "10",
+        "seg2": "30",
+        "className": "",
+        "x": 850,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "1892dcdb08343cac",
+        "type": "function",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "func": "\nmsg.payload=msg.payload.Temperature;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 340,
+        "wires": [
+            [
+                "53c7222a37513cfe",
+                "385ab05efd70c0c2"
+            ]
+        ]
+    },
+    {
+        "id": "d57fa65405f1b2e3",
+        "type": "json",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": true,
+        "x": 420,
+        "y": 280,
+        "wires": [
+            [
+                "1892dcdb08343cac"
+            ]
+        ]
+    },
+    {
+        "id": "385ab05efd70c0c2",
+        "type": "ui_chart",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "group": "849152b13751c786",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "label": "Temperature Chart",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 890,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ca3f22f1c1ea76d4",
+        "type": "mqtt in",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "topic": "SDC/poten/",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "6168ab534c15fdbb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 230,
+        "y": 500,
+        "wires": [
+            [
+                "1e44412966085014"
+            ]
+        ]
+    },
+    {
+        "id": "1e44412966085014",
+        "type": "json",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": true,
+        "x": 430,
+        "y": 500,
+        "wires": [
+            [
+                "b3d2999001eca638"
+            ]
+        ]
+    },
+    {
+        "id": "b3d2999001eca638",
+        "type": "function",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "func": "\nmsg.payload=msg.payload.poten;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 500,
+        "wires": [
+            [
+                "b9191b6976902a86",
+                "b2450e5c8d098bdd"
+            ]
+        ]
+    },
+    {
+        "id": "b9191b6976902a86",
+        "type": "ui_gauge",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "group": "2b69e89121cde807",
+        "order": 0,
+        "width": "0",
+        "height": "0",
+        "gtype": "gage",
+        "title": "Poten",
+        "label": "ºC",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "1024",
+        "colors": [
+            "#1c71d8",
+            "#26a269",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 890,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "b2450e5c8d098bdd",
+        "type": "ui_chart",
+        "z": "ee73b953d39c3f96",
+        "name": "",
+        "group": "2b69e89121cde807",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "label": "Poten Char",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 870,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    }
+]
