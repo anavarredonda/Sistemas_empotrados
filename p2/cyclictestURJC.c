@@ -8,13 +8,14 @@
 #include <err.h>
 #include <fcntl.h>
 
-// TODO Seguir con los tiempos, hacer los de 10ms
-#define TIME_PROGRAM_NS 1e9
+// TODO Arreglar free (solo funciona con 44 segundos), arreglar print
+#define TIME_PROGRAM_NS 44e9//6e10
+#define SLEEP_WAIT 1e7
 
 struct thread_info {
     int id_core;
     int **dataset;
-    int iterations;
+    int *iterations;
 };
 
 struct thread_info*
@@ -27,20 +28,27 @@ create_thread_info(int n_nucleos){
 
     thread_info->dataset = malloc(sizeof(int *) * n_nucleos);
     for (int i = 0; i < n_nucleos; i++) {
-        // 70 ->segundos programa    100->iteraciones por segundo
-        thread_info->dataset[i] = malloc(sizeof(int) * 70 * 100);
+        // Espacio sobreestimado
+        thread_info->dataset[i] = malloc(sizeof(int) * 70 * 1000);
     }
+    thread_info->iterations = malloc(sizeof(int *) * n_nucleos);
 
     return thread_info;
 }
 
 void
-free_thread_info(struct thread_info *thread_info, int N) {
-    for (int i = 0; i < N; i++) {
+free_thread_info(struct thread_info *thread_info, int n_nucleos) {
+    for (int i = 0; i <= n_nucleos; i++) {
+        fprintf(stderr, "Liberando: %d\n", i);
         free(thread_info->dataset[i]);
     }
+    fprintf(stderr, "Liberando dataset\n");
     free(thread_info->dataset);
+    fprintf(stderr, "Liberando iterations\n");
+    free(thread_info->iterations);
+    fprintf(stderr, "Liberando thread_info\n");
     free(thread_info);
+    fprintf(stderr, "Todo liberado\n");
 }
 
 long
@@ -52,14 +60,15 @@ seconds2nseconds(struct timespec timespec) {
 }
 
 void *
-core_cal_thread(void *arg) {
+core_calcu_thread(void *arg) {
 
     struct sched_param param;
     cpu_set_t cputset;
     struct thread_info *thread_info = (struct thread_info *)arg;
-    struct timespec start_min, finish_min;
+    struct timespec start_min, finish, start_measure;
+    struct timespec duration;
     clockid_t clockid = CLOCK_MONOTONIC;
-    long a_nsecond, b_nsecond;
+    long a_nsecond = 0, b_nsecond = 0, m_nsecond, latency_v;
 
     param.sched_priority = 99;
     if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &param) != 0) {
@@ -76,18 +85,54 @@ core_cal_thread(void *arg) {
         pthread_exit(NULL);
     }
 
-    if (clock_gettime(clockid, &finish_min) == -1) {
-        fprintf(stderr, "Error getting the last time");
-        pthread_exit(NULL);
-    }
+    while (a_nsecond - b_nsecond < TIME_PROGRAM_NS) {
 
-    b_nsecond = seconds2nseconds(start_min);
-    a_nsecond = seconds2nseconds(finish_min);
+        //Coger tiempo, esperar 10ms, coger tiempo
+        if (clock_gettime(clockid, &start_measure) == -1) {
+            fprintf(stderr, "Error getting the last time");
+            pthread_exit(NULL);
+        }
+        duration.tv_nsec = SLEEP_WAIT;
+        nanosleep(&duration, NULL);
 
-    // Espera 1 min
-    if (a_nsecond - b_nsecond > TIME_PROGRAM_NS) {
-        pthread_exit(EXIT_SUCCESS);
+        if (clock_gettime(clockid, &finish) == -1) {
+            fprintf(stderr, "Error getting the last time");
+            pthread_exit(NULL);
+        }
+
+        b_nsecond = seconds2nseconds(start_min);
+        m_nsecond = seconds2nseconds(start_measure);
+        a_nsecond = seconds2nseconds(finish);
+
+        latency_v = a_nsecond - m_nsecond - SLEEP_WAIT;
+        thread_info->dataset[thread_info->id_core][thread_info->iterations[thread_info->id_core]] = latency_v;
+        fprintf(stderr, "latency: %d\n", thread_info->dataset[thread_info->id_core][thread_info->iterations[thread_info->id_core]]);
+        thread_info->iterations[thread_info->id_core]++;
     }
+    pthread_exit(EXIT_SUCCESS);
+}
+
+void
+print_results(struct thread_info* thread_info, int n_nucleos) {
+    long avg = 0, max = 0;
+
+    fprintf(stderr, "dentro de print\n");
+    for (int i = 0; i <= n_nucleos; i++) {
+        for (int j = 0; j < thread_info->iterations[n_nucleos]; j++) {
+            //fprintf(stderr, "%d\n", thread_info->dataset[i][j]);
+            avg = avg + thread_info->dataset[i][j];
+            if (max < thread_info->dataset[i][j]) {
+                max = thread_info->dataset[i][j];
+            }  
+        }
+        avg = avg / thread_info->iterations[n_nucleos];
+        printf("[%d]    latencia media = %09ld ns. | max = %09ld ns\n", i, avg, max); 
+    }
+}
+
+void 
+save_results(struct thread_info* thread_info) {
+
 }
 
 int
@@ -109,12 +154,11 @@ main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    struct thread_info *thread_info = create_thread_info(N);
-    
+    struct thread_info* thread_info = create_thread_info(N);
 
     for (int i = 0; i < N; i++) {
         thread_info->id_core = i;
-        if (pthread_create(&thread_ids[i], NULL, core_cal_thread, thread_info) != 0) {
+        if (pthread_create(&thread_ids[i], NULL, core_calcu_thread, thread_info) != 0) {
             err(EXIT_FAILURE, NULL);
         }
     }
@@ -125,6 +169,9 @@ main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }  
     }
+
+    print_results(thread_info, N);
+    //save_results(thread_info);
     
     free_thread_info(thread_info, N);
     close(latency_target_fd);
