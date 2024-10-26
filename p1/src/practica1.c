@@ -12,8 +12,6 @@
 #define NUMBER_SUM 1000000000
 #define PERIOD_TIME 900000000
 
-// TODO: Hacer pdf
-
 void *
 thread_function(void *arg) {
 
@@ -29,7 +27,7 @@ thread_function(void *arg) {
         }
 
         volatile unsigned long long j;
-        for (j=0; j < 2150000000ULL; j++);
+        for (j=0; j < 250000000ULL; j++);
 
         if (clock_gettime(clockid, &finish) == -1) {
             fprintf(stderr, "Error getting the second time");
@@ -52,11 +50,10 @@ thread_function(void *arg) {
         }
 
         if (clock_gettime(CLOCK_REALTIME, &print_time) == -1) {
-            fprintf(stderr, "Error getting the second time");
+            fprintf(stderr, "Error getting the print time");
             pthread_exit(NULL);
         }
 
-        //result.tv_sec >= 1 ||
         if (result.tv_nsec < PERIOD_TIME && result.tv_sec == 0) {
             fprintf(stdout, "[%ld.%ld] Thread %d - Iteracion %d: Coste=%ld.%ld s.\n",
                 print_time.tv_sec, print_time.tv_nsec, id, i, result.tv_sec,
