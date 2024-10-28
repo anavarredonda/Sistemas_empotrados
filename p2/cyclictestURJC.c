@@ -4,11 +4,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <err.h>
 #include <fcntl.h>
 
-// TODO Arreglar max en print, hacer que guarde
+// TODO Hacer que guarde
 #define TIME_PROGRAM_NS 60000000000
 #define SLEEP_WAIT 10000000
 
@@ -27,11 +26,27 @@ create_thread_info(int n_nucleos){
     }
 
     thread_info->dataset = malloc(sizeof(int *) * n_nucleos);
+    if (thread_info->dataset == NULL) {
+        perror("malloc");
+        free(thread_info);
+        exit(EXIT_FAILURE);
+    }
+
     for (int i = 0; i < n_nucleos; i++) {
         // Espacio sobreestimado
         thread_info->dataset[i] = malloc(sizeof(int) * 70 * 100);
+        if (thread_info->dataset[i] == NULL) {
+            perror("malloc");
+            for (int j = 0; j < i; j++) {
+                free(thread_info->dataset[j]);
+            }
+            free(thread_info->dataset);
+            free(thread_info);
+            exit(EXIT_FAILURE);
+        }
     }
 
+    thread_info->iterations = 0;
     return thread_info;
 }
 
@@ -48,13 +63,11 @@ long
 seconds2nseconds(struct timespec timespec) {
     long nseconds;
     nseconds = timespec.tv_nsec + (timespec.tv_sec * 1e9);
-
     return nseconds;
 }
 
 void *
 core_calcu_thread(void *arg) {
-
     struct sched_param param;
     cpu_set_t cputset;
     struct thread_info *thread_info = (struct thread_info *)arg;
@@ -69,17 +82,14 @@ core_calcu_thread(void *arg) {
     }
 
     CPU_ZERO(&cputset);
-    CPU_SET(thread_info->id_core ,&cputset);
+    CPU_SET(thread_info->id_core, &cputset);
 
-    // Coger un minuto
     if (clock_gettime(clockid, &start_min) == -1) {
         fprintf(stderr, "Error getting the first time");
         pthread_exit(NULL);
     }
 
     while (a_nsecond - b_nsecond < TIME_PROGRAM_NS) {
-
-        //Coger tiempo, esperar 10ms, coger tiempo
         if (clock_gettime(clockid, &start_measure) == -1) {
             fprintf(stderr, "Error getting the last time");
             pthread_exit(NULL);
@@ -105,34 +115,42 @@ core_calcu_thread(void *arg) {
 
 void
 print_results(struct thread_info** thread_infos, int n_nucleos) {
-    long avg = 0, max = 0;
+    long avg, max;
 
     for (int i = 0; i < n_nucleos; i++) {
+        avg = 0;
+        max = 0;
+        
         for (int j = 0; j < thread_infos[i]->iterations; j++) {
-            avg = avg + thread_infos[i]->dataset[i][j];
+            avg += thread_infos[i]->dataset[i][j];
             if (max < thread_infos[i]->dataset[i][j]) {
                 max = thread_infos[i]->dataset[i][j];
             }
         }
-        avg = avg / thread_infos[i]->iterations;
-        printf("[%d]    latencia media = %09ld ns. | max = %09ld ns\n", i, avg, max); 
+        if (thread_infos[i]->iterations > 0) {
+            avg /= thread_infos[i]->iterations;
+        }
+        printf("[%d]    latencia media = %09ld ns. | max = %09ld ns\n", i, avg, max);
     }
 }
 
 void 
 save_results(struct thread_info* thread_info) {
-
+    // Implementa la función para guardar resultados si es necesario
 }
 
 int
 main(int argc, char *argv[]) {
-
     struct thread_info* thread_info;
     struct thread_info** thread_info_array;
     void* ret_val;
 
     static int32_t latency_target_value = 0;
     int latency_target_fd = open("/dev/cpu_dma_latency", O_RDWR);
+    if (latency_target_fd < 0) {
+        perror("open");
+        exit(EXIT_FAILURE);
+    }
     write(latency_target_fd, &latency_target_value, 4);
 
     int N = (int) sysconf(_SC_NPROCESSORS_ONLN);
@@ -147,7 +165,12 @@ main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    thread_info = create_thread_info(N);
+    thread_info_array = malloc(sizeof(struct thread_info*) * N);
+    if (thread_info_array == NULL) {
+        perror("malloc");
+        free(thread_ids);
+        exit(EXIT_FAILURE);
+    }
 
     for (int i = 0; i < N; i++) {
         thread_info = create_thread_info(N);
@@ -158,25 +181,23 @@ main(int argc, char *argv[]) {
         }
     }
 
-    thread_info_array = malloc(sizeof(struct thread_info*) * N);
     for (int i = 0; i < N; i++) {
-
         if (pthread_join(thread_ids[i], &ret_val) != 0) {
             perror("pthread_join");
             exit(EXIT_FAILURE);
         }
         thread_info = (struct thread_info*)ret_val;
-        thread_info_array[thread_info->id_core]= thread_info;
+        thread_info_array[thread_info->id_core] = thread_info;
     }
 
     print_results(thread_info_array, N);
-    //save_results(thread_info);
+    // save_results(thread_info);
 
     for (int i = 0; i < N; i++) {
         free_thread_info(thread_info_array[i], N);
     }
     free(thread_info_array);
-    close(latency_target_fd);
     free(thread_ids);
+    close(latency_target_fd);
     exit(EXIT_SUCCESS);
 }
