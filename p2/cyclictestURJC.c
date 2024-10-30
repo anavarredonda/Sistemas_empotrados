@@ -6,14 +6,14 @@
 #include <stdio.h>
 #include <err.h>
 #include <fcntl.h>
+#include <string.h>
 
-// TODO Hacer que guarde
-#define TIME_PROGRAM_NS 60000000000
+#define TIME_PROGRAM_NS 60000000000 
 #define SLEEP_WAIT 10000000
 
 struct thread_info {
     int id_core;
-    int **dataset;
+    int *dataset;
     int iterations;
 };
 
@@ -25,25 +25,11 @@ create_thread_info(int n_nucleos){
         exit(EXIT_FAILURE);
     }
 
-    thread_info->dataset = malloc(sizeof(int *) * n_nucleos);
+    thread_info->dataset = malloc(sizeof(int) * 70 * 100);
     if (thread_info->dataset == NULL) {
         perror("malloc");
         free(thread_info);
         exit(EXIT_FAILURE);
-    }
-
-    for (int i = 0; i < n_nucleos; i++) {
-        // Espacio sobreestimado
-        thread_info->dataset[i] = malloc(sizeof(int) * 70 * 100);
-        if (thread_info->dataset[i] == NULL) {
-            perror("malloc");
-            for (int j = 0; j < i; j++) {
-                free(thread_info->dataset[j]);
-            }
-            free(thread_info->dataset);
-            free(thread_info);
-            exit(EXIT_FAILURE);
-        }
     }
 
     thread_info->iterations = 0;
@@ -52,9 +38,7 @@ create_thread_info(int n_nucleos){
 
 void
 free_thread_info(struct thread_info *thread_info, int n_nucleos) {
-    for (int i = 0; i < n_nucleos; i++) {
-        free(thread_info->dataset[i]);
-    }
+
     free(thread_info->dataset);
     free(thread_info);
 }
@@ -107,7 +91,7 @@ core_calcu_thread(void *arg) {
         a_nsecond = seconds2nseconds(finish);
 
         latency_v = a_nsecond - m_nsecond - SLEEP_WAIT;
-        thread_info->dataset[thread_info->id_core][thread_info->iterations] = latency_v;
+        thread_info->dataset[thread_info->iterations] = latency_v;
         thread_info->iterations++;
     }
     pthread_exit((void *)thread_info);
@@ -122,9 +106,9 @@ print_results(struct thread_info** thread_infos, int n_nucleos) {
         max = 0;
         
         for (int j = 0; j < thread_infos[i]->iterations; j++) {
-            avg += thread_infos[i]->dataset[i][j];
-            if (max < thread_infos[i]->dataset[i][j]) {
-                max = thread_infos[i]->dataset[i][j];
+            avg += thread_infos[i]->dataset[j];
+            if (max < thread_infos[i]->dataset[j]) {
+                max = thread_infos[i]->dataset[j];
             }
         }
         if (thread_infos[i]->iterations > 0) {
@@ -135,8 +119,41 @@ print_results(struct thread_info** thread_infos, int n_nucleos) {
 }
 
 void 
-save_results(struct thread_info* thread_info) {
-    // Implementa la función para guardar resultados si es necesario
+save_results(struct thread_info** thread_infos, int n_nucleos) {
+    char buf[(sizeof(int) * 3) + 10]; //size of 3 int + size of \n\0
+    ssize_t bytes_writen, result;
+    size_t len;
+
+    int fd = open("cyclictestURJC_data", O_CREAT | O_TRUNC | O_WRONLY, 0666);
+    if (fd == -1) {
+        perror("Error al abrir el archivo");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < n_nucleos; i++) {
+        for (int j = 0; j < thread_infos[i]->iterations; j++) {
+            memset(buf, 0, sizeof(buf));
+            if (snprintf(buf, sizeof(buf), "%d,%d,%d\n", 
+                        thread_infos[i]->id_core, j, 
+                        thread_infos[i]->dataset[j]) < 0) {
+                perror("snprintf");
+                continue;
+            }
+
+            len = strlen(buf);
+            bytes_writen = 0;
+
+            while (bytes_writen < len) {
+                result = write(fd, buf + bytes_writen, len - bytes_writen);
+                if (result == -1) {
+                    perror("write");
+                    break;
+                }
+                bytes_writen += result;
+            }
+        }
+    }
+    close(fd);
 }
 
 int
@@ -147,10 +164,6 @@ main(int argc, char *argv[]) {
 
     static int32_t latency_target_value = 0;
     int latency_target_fd = open("/dev/cpu_dma_latency", O_RDWR);
-    if (latency_target_fd < 0) {
-        perror("open");
-        exit(EXIT_FAILURE);
-    }
     write(latency_target_fd, &latency_target_value, 4);
 
     int N = (int) sysconf(_SC_NPROCESSORS_ONLN);
@@ -191,7 +204,7 @@ main(int argc, char *argv[]) {
     }
 
     print_results(thread_info_array, N);
-    // save_results(thread_info);
+    save_results(thread_info_array, N);
 
     for (int i = 0; i < N; i++) {
         free_thread_info(thread_info_array[i], N);
