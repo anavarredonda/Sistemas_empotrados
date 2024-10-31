@@ -1,0 +1,12 @@
+Kernet NoRT S1: Avg: 2837,5  Max: 27060483
+Kernel NoRT S2: Avg: 5289,3  Max: 26382695
+Kernel NoRT S3: Avg: 4884,8  Max: 25901115
+
+
+RBPi Kernel no-RT S1: Avg:21143,5 Max:167991
+RBPi Kernel no-RT S2: Avg:25452,2 Max:300103
+RBPi Kernel no-RT S3: Avg:21215,5 Max:144248
+
+RBPi Kernel RT S1: Avg: 23051,5 Max 66814
+RBPi Kernel RT S2: Avg: 15142,2 Max 79648
+RBPi Kernel RT S3: Avg: 23515   Max 106506

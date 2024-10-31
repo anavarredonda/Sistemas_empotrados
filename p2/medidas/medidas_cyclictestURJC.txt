@@ -1,0 +1,12 @@
+Kernet NoRT S1: Avg:  Max:
+Kernel NoRT S2: Avg:  Max:
+Kernel NoRT S3: Avg:  Max:
+
+
+RBPi Kernel no-RT S1: Avg: Max:
+RBPi Kernel no-RT S2: Avg: Max:
+RBPi Kernel no-RT S3: Avg: Max:
+
+RBPi Kernel RT S1: Avg: Max:
+RBPi Kernel RT S2: Avg:  Max: 
+RBPi Kernel RT S3: Avg:   Max: 

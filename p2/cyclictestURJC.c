@@ -45,8 +45,11 @@ free_thread_info(struct thread_info *thread_info, int n_nucleos) {
 
 long
 seconds2nseconds(struct timespec timespec) {
-    long nseconds;
-    nseconds = timespec.tv_nsec + (timespec.tv_sec * 1e9);
+    long long nseconds;
+    fprintf(stderr, "Tiempo en segundos%ld\n", timespec.tv_sec);
+    fprintf(stderr, "Tiempo en nsegundos%ld\n", timespec.tv_nsec);
+    nseconds = timespec.tv_nsec + (timespec.tv_sec * 1000000000);
+    fprintf(stderr, "El resultado de tiemo en nanosegundos es: %lld\n", nseconds);
     return nseconds;
 }
 
@@ -57,7 +60,7 @@ core_calcu_thread(void *arg) {
     struct thread_info *thread_info = (struct thread_info *)arg;
     struct timespec start_min, finish, start_measure, duration;
     clockid_t clockid = CLOCK_MONOTONIC;
-    long a_nsecond = 0, b_nsecond = 0, m_nsecond, latency_v;
+    long long a_nsecond = 0, b_nsecond = 0, m_nsecond, latency_v, time_exe = 0;
 
     param.sched_priority = 99;
     if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &param) != 0) {
@@ -73,12 +76,21 @@ core_calcu_thread(void *arg) {
         pthread_exit(NULL);
     }
 
-    while (a_nsecond - b_nsecond < TIME_PROGRAM_NS) {
+    duration.tv_nsec = SLEEP_WAIT;
+    duration.tv_sec = 0;
+	
+    finish.tv_sec = 0;
+    finish.tv_nsec = 0;
+    
+    b_nsecond = start_min.tv_nsec + (start_min.tv_sec * 1000000000);
+    a_nsecond = 0;
+    while (time_exe < TIME_PROGRAM_NS) {
+	fprintf(stderr, "Valor de a_nseconds %lld\n", a_nsecond);
         if (clock_gettime(clockid, &start_measure) == -1) {
             fprintf(stderr, "Error getting the last time");
             pthread_exit(NULL);
         }
-        duration.tv_nsec = SLEEP_WAIT;
+
         nanosleep(&duration, NULL);
 
         if (clock_gettime(clockid, &finish) == -1) {
@@ -86,21 +98,27 @@ core_calcu_thread(void *arg) {
             pthread_exit(NULL);
         }
 
-        b_nsecond = seconds2nseconds(start_min);
-        m_nsecond = seconds2nseconds(start_measure);
-        a_nsecond = seconds2nseconds(finish);
+	fprintf(stderr, "finish: %ld, %ld\n", finish.tv_sec, finish.tv_nsec);
+
+	m_nsecond = start_measure.tv_nsec + (start_measure.tv_sec * 1000000000);
+	a_nsecond = (long long)(finish.tv_nsec) + ((long long)(finish.tv_sec) * 1000000000);
 
         latency_v = a_nsecond - m_nsecond - SLEEP_WAIT;
         thread_info->dataset[thread_info->iterations] = latency_v;
         thread_info->iterations++;
+
+	time_exe = a_nsecond - b_nsecond;
+	fprintf(stderr, "El valor de time_exe es: %lld\n", time_exe);
+	fprintf(stderr, "latency de %d es: %lld\n", thread_info->id_core, latency_v);
     }
+    //fprintf(stderr, "Saliendo de hilo %d\n", thread_info->id_core);
     pthread_exit((void *)thread_info);
 }
 
 void
 print_results(struct thread_info** thread_infos, int n_nucleos) {
-    long avg, max;
-
+    long long avg, max;
+    //fprintf(stderr, "Dentro de print_results\n");
     for (int i = 0; i < n_nucleos; i++) {
         avg = 0;
         max = 0;
@@ -114,7 +132,7 @@ print_results(struct thread_info** thread_infos, int n_nucleos) {
         if (thread_infos[i]->iterations > 0) {
             avg /= thread_infos[i]->iterations;
         }
-        printf("[%d]    latencia media = %09ld ns. | max = %09ld ns\n", i, avg, max);
+        printf("[%d]    latencia media = %09lld ns. | max = %09lld ns\n", i, avg, max);
     }
 }
 
