@@ -70,7 +70,7 @@ core_calcu_thread(void *arg) {
     duration.tv_nsec = SLEEP_WAIT;
     duration.tv_sec = 0;
     
-    b_nsecond = start_min.tv_nsec + (start_min.tv_sec * 1000000000);
+    b_nsecond = (long long)start_min.tv_nsec + ((long long)start_min.tv_sec * 1000000000);
 
     while (time_exe < TIME_PROGRAM_NS) {
 
@@ -96,6 +96,7 @@ core_calcu_thread(void *arg) {
         thread_info->iterations++;
 
 	time_exe = a_nsecond - b_nsecond;
+	fprintf(stderr, "Tiempo que se lleva: %lld", time_exe);
     }
     //fprintf(stderr, "Saliendo de hilo %d\n", thread_info->id_core);
     pthread_exit((void *)thread_info);
