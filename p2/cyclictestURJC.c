@@ -65,7 +65,6 @@ core_calcu_thread(void *arg) {
         fprintf(stderr, "Error getting the first time");
         pthread_exit(NULL);
     }
-    fprintf(stderr, "Valores reloj 1: %ld:%ld\n", start_min.tv_sec, start_min.tv_nsec);
 
     duration.tv_nsec = SLEEP_WAIT;
     duration.tv_sec = 0;
@@ -78,7 +77,6 @@ core_calcu_thread(void *arg) {
             fprintf(stderr, "Error getting the last time");
             pthread_exit(NULL);
         }
-        fprintf(stderr, "Valores reloj 2: %ld:%ld\n", start_measure.tv_sec, start_measure.tv_nsec);
 
         nanosleep(&duration, NULL);
 
@@ -86,7 +84,6 @@ core_calcu_thread(void *arg) {
             fprintf(stderr, "Error getting the last time");
             pthread_exit(NULL);
         }
-        fprintf(stderr, "Valores reloj 3: %ld:%ld\n", finish.tv_sec, finish.tv_nsec);
 
 	    m_nsecond = start_measure.tv_nsec + (start_measure.tv_sec * 1000000000);
 	    a_nsecond = (long long)(finish.tv_nsec) + ((long long)(finish.tv_sec) * 1000000000);
@@ -96,16 +93,14 @@ core_calcu_thread(void *arg) {
         thread_info->iterations++;
 
 	time_exe = a_nsecond - b_nsecond;
-	fprintf(stderr, "Tiempo que se lleva: %lld", time_exe);
     }
-    //fprintf(stderr, "Saliendo de hilo %d\n", thread_info->id_core);
     pthread_exit((void *)thread_info);
 }
 
 void
 print_results(struct thread_info** thread_infos, int n_nucleos) {
     long long avg, max;
-    //fprintf(stderr, "Dentro de print_results\n");
+
     for (int i = 0; i < n_nucleos; i++) {
         avg = 0;
         max = 0;
