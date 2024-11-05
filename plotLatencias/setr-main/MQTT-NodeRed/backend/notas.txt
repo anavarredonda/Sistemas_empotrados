@@ -1,1 +1,0 @@
-restart docker service before launching docker-compose (problems with the network sometimes)
