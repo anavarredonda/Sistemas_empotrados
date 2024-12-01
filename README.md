@@ -3,6 +3,7 @@
 # Esquemático del circuito
 
 # Video de funcionamiento
+https://urjc-my.sharepoint.com/:v:/g/personal/a_navarredonda_2022_alumnos_urjc_es/EU0ftQJQI_hEpcBTk1Hhcf8BtisPNhXg_mremefl9S028A?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=nR07Vo
 
 # Explicacion de mi solucion
 
