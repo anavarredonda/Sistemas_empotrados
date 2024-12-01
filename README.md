@@ -2,6 +2,8 @@
 ------------------------------------------------------
 # Esquemático del circuito
 
+https://urjc-my.sharepoint.com/:i:/g/personal/a_navarredonda_2022_alumnos_urjc_es/ES3DoYvSJg5Dlfhht12ThCsB_rSeCIDzW9kBfHLesp1TpQ?e=NFxuIZ
+
 # Video de funcionamiento
 https://urjc-my.sharepoint.com/:v:/g/personal/a_navarredonda_2022_alumnos_urjc_es/EU0ftQJQI_hEpcBTk1Hhcf8BtisPNhXg_mremefl9S028A?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=nR07Vo
 
