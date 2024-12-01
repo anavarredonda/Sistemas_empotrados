@@ -25,7 +25,7 @@ fig.suptitle("Distribucion de latencia entre kernel RT y no RT en raspberry pi")
 for i, (kernel_key, kernel_label) in enumerate(kernels.items()):
     for j, (scenario_key, scenario_label) in enumerate(scenarios.items()):
         #Cambiar en funcion del directorio de trabajo
-        filename = f"CSVs/cyclictestURJC_data_{kernel_key}_{scenario_key}"
+        filename = f"../CSVs/cyclictestURJC_data_{kernel_key}_{scenario_key}"
 
         try:
             data = pd.read_csv(filename, header=None, names=["CPU", "iteracion",
